@@ -38,20 +38,34 @@
         balls (treat-balls (last tokens))]
   {:balls balls :id (read-string game-id)}))
 
-(defn to-legal 
+(defn max-balls [left right]
+  (into {} (for [[k, v] left] {k (Math/max v (k right))})))
+
+(defn maximum
+  ; ugly
   [{:keys [balls id]}]
-  (let [fn #(and %1 %2)]
-  {:id id :balls 
-   (reduce fn (mapv #(reduce fn (for [[k, v] valid] (<= (k %) v))) balls))}))
+    {:id id :balls
+     (reduce max-balls balls)})
+
+(defn answer-part-1 [data]
+  (->> data 
+       (filter #(every? true? (for [[k v] valid] (<= (k (:balls %)) v))))
+       (mapv :id)
+       (reduce +)))
+
+(defn answer-part-2 [data]
+  (->> (mapv #(vec (for [[_ v] (:balls %)] v)) data)
+       (mapv #(reduce * %))
+       (reduce +)))
 
 (defn solve [s]
   (->> (slurp s)
        (str/lower-case)
        (str/split-lines)
        (mapv input-to-map)
-       (mapv to-legal)
-       (filterv #(= true (:balls %))) 
-       (mapv :id)
-       (reduce +)))
+       (mapv maximum)
+       ;(answer-part-1)
+       (answer-part-2)
+       ))
 
 (solve "resources/input.txt")
