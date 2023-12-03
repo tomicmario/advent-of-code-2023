@@ -8,9 +8,10 @@
        (mapv #(Character/digit % 10))))
 
 (defn solve [s]
-  (->> (str/split-lines s)
+  (->> (slurp s)
+       (str/split-lines )
        (mapv sanitize)
        (mapv #(+ (* 10 (first %)) (last %)))
        (reduce +)))
 
-(solve input)
+(solve "resources/input.txt")

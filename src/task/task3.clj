@@ -3,10 +3,10 @@
 
 (def input "467..114..\n...*......\n..35..633.\n......#...\n617*......\n.....+.58.\n..592.....\n......755.\n...$.*....\n.664.598..")
 
-(def symbol-regex #"\D") 
+(def number-regex #"[0-9]+") 
 
 (defn sanitize [s]
-  (-> (str/replace s symbol-regex #(str "." %))
+  (-> (str/replace s number-regex #(str "." % "."))
       (str/split #"\.+")))
 
 (defn tokenize [s]
@@ -17,7 +17,7 @@
 (defn treat-symbol [tokens line curr-index acc]
   (let [index (str/index-of line (first tokens) curr-index)
         updated-acc (update acc :symbols conj index)]
-    {:tokens (rest tokens) :current-index index :acc updated-acc}))
+    {:tokens (rest tokens) :current-index (inc index) :acc updated-acc}))
 
 (defn treat-number [tokens line curr-index acc]
   (let [current (first tokens) 
@@ -25,12 +25,12 @@
         index (str/index-of line current curr-index)
         range {:val value :min (dec index) :max (+ 1 index (count current))}
         updated-acc (update acc :numbers conj range)]
-    {:tokens (rest tokens) :current-index index :acc updated-acc}))
+    {:tokens (rest tokens) :current-index (inc index) :acc updated-acc}))
 
 (defn treat [tokens line curr acc]
-  (if (re-matches symbol-regex (first tokens)) 
-    (treat-symbol tokens line curr acc)
-    (treat-number tokens line curr acc)))
+  (if (re-matches number-regex (first tokens)) 
+    (treat-number tokens line curr acc)
+    (treat-symbol tokens line curr acc)))
 
 (defn gen-range [data]
  (let [line (:line data)]
@@ -47,7 +47,7 @@
       (let [up (or (get d (dec index)) {:symbols []})
             down (or (get d (inc index)) {:symbols []})
             current (:symbols (d index))
-            total (concat current (:symbols up) (:symbols down))]
+            total (concat current (:symbols up) (:symbols down))] 
         (recur (assoc-in d [index :symbols-all] total) (inc index))) 
       d)))
 
@@ -67,8 +67,9 @@
        (filterv number?)))
 
 (defn solve [s]
-  (->> (str/split-lines s) 
-       (mapv tokenize)
+  (->> (slurp s) 
+       (str/split-lines)
+       (mapv tokenize) 
        (mapv gen-range)
        (mapv #(select-keys % [:numbers :symbols]))
        (add-up-down)
@@ -76,4 +77,5 @@
        (flatten)
        (reduce +)))
 
-(solve input)
+
+(solve "resources/input.txt")
