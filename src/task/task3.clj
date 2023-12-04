@@ -1,8 +1,6 @@
 (ns task.task3
   (:require [clojure.string :as str]))
 
-(def input "467..114..\n...*......\n..35..633.\n......#...\n617*......\n.....+.58.\n..592.....\n......755.\n...$.*....\n.664.598..")
-
 (def number-regex #"[0-9]+") 
 
 (defn sanitize [s]
@@ -23,9 +21,9 @@
   (let [current (first tokens) 
         value (read-string current)
         index (str/index-of line current curr-index)
-        range {:val value :min (dec index) :max (+ 1 index (count current))}
+        range {:val value :min (dec index) :max (+ index (count current))}
         updated-acc (update acc :numbers conj range)]
-    {:tokens (rest tokens) :current-index (inc index) :acc updated-acc}))
+    {:tokens (rest tokens) :current-index (+ index (count current)) :acc updated-acc}))
 
 (defn treat [tokens line curr acc]
   (if (re-matches number-regex (first tokens)) 
@@ -78,4 +76,4 @@
        (reduce +)))
 
 
-(solve "resources/input.txt")
+;(solve "resources/input.txt")
