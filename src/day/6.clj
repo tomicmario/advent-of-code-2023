@@ -1,10 +1,15 @@
 (ns day.6
   (:require [clojure.string :as str]))
 
-(defn parse [s]
+(defn parse-p1 [s]
   (mapv read-string (-> (second (str/split s #":"))
                         (str/trim)
                         (str/split #" +"))))
+
+(defn parse-p2 [s]
+  (-> (second (str/split s #":"))
+      (str/trim)
+      (str/replace #" +" "")))
 
 (defn distances [[time dist]]
   (loop [held 0
