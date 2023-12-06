@@ -1,4 +1,4 @@
-(ns task.task2
+(ns day.2
   (:require [clojure.string :as str]))
 
 (def valid {:red 12 :green 13 :blue 14})

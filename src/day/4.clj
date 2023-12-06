@@ -1,4 +1,4 @@
-(ns task.task4
+(ns day.4
   (:require [clojure.string :as str]
             [clojure.set :as set]))
 

@@ -1,4 +1,4 @@
-(ns task.task3
+(ns day.3
   (:require [clojure.string :as str]))
 
 (def number-regex #"[0-9]+") 

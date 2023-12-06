@@ -1,4 +1,4 @@
-(ns task.task1
+(ns day.1
   (:require [clojure.string :as str]))
 
 (def spelt {"one" "o1ne" "two" "t2wo" "three" "th3ree" "four" "fo4ur" "five" "fi5ve" "six" "si6x" "seven" "se7ven" "eight" "ei8ght" "nine" "ni9ne"})
