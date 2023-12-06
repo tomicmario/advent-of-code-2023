@@ -27,7 +27,6 @@
         res (if (neg? rep) 0 (exp2 rep))]
     res))
 
-
 (defn treat-line-p2 [data curr-index]
   (let [{:keys [matches mult]} (data curr-index)
         matched (if (pos? matches) 1 0)
@@ -48,8 +47,8 @@
        (str/split-lines)
        (mapv parse)
        (mapv treat)
+       ;(mapv treat-p1)
        (treat-p2)
-       (mapv compute-result-2)
        (reduce +)))
 
-(solve "resources/input.txt")
+;(solve "resources/input.txt")
