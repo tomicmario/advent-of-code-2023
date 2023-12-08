@@ -9,7 +9,8 @@
 (defn parse-p2 [s]
   (-> (second (str/split s #":"))
       (str/trim)
-      (str/replace #" +" "")))
+      (str/replace #" +" "")
+      (read-string)))
 
 (defn distances [[time dist]]
   (loop [held 0
@@ -19,13 +20,21 @@
               updated (if (> travelled dist) (conj acc travelled) acc)]
           (recur (inc held) updated)))))
 
+(defn data-p1 [tokens]
+  (let [time (parse-p1 (first tokens))
+        distance (parse-p1 (second tokens))]
+    (map #(concat [%1] [%2]) time distance)))
+
+(defn data-p2 [tokens]
+  (let [time (parse-p2 (first tokens))
+        distance (parse-p2 (second tokens))]
+    [[time distance]]))
+
 (defn solve [s]
   (let [tokens (str/split-lines (slurp s))
-        time (parse (first tokens))
-        distance (parse (second tokens))
-        data (map #(concat [%1] [%2]) time distance)]
+        data (data-p2 tokens)]
     (->> (mapv distances data)
          (mapv count)
          (reduce *))))
 
-(solve "resources/input.txt")
+;(solve "resources/input.txt")
