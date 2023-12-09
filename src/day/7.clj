@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [clojure.core.match :refer [match]]))
 
-(def values {\1 1 \2 2 \3 3 \4 4 \5 5 \6 6 \7 7 \8 8 \9 9 \T 10 \J 11 \Q 12 \K 13 \A 14})
+(def values {\2 2 \3 3 \4 4 \5 5 \6 6 \7 7 \8 8 \9 9 \T 10 \Q 12 \K 13 \A 14
+             \J 13 }) ;part 2
 
 (defn to-count [acc num]
   (if (contains? acc num) (update acc num inc)
@@ -13,10 +14,27 @@
     (if-not (zero? comp) comp
             (compare (first c2) (first c1)))))
 
-(defn treat-hand [h] 
+(defn get-joker-count-index [values] 
+  (loop [v values
+         i 0]
+    (if-not (seq v) -1
+            (if (= 1 (ffirst v)) i
+              (recur (rest v) (inc i))))))
+
+(defn treat-p2 [values]
+  (let [index (get-joker-count-index values)]
+    (if (neg? index) values
+        (let [joker-filtered (vec (concat (subvec values 0 index) (subvec values (inc index) (count values))))
+              current-highest (first joker-filtered)]
+          (if-not current-highest values 
+                  (update-in joker-filtered [0 1] + (second (values index))))))))
+
+(defn treat-hand [h]
   (->> (mapv values h)
        (reduce to-count {})
-       (sort count-comparison)))
+       (sort count-comparison)
+       (vec)
+       (treat-p2)))
 
 (defn parse [s]
   (let [tokens (str/split s #" ")
