@@ -1,5 +1,6 @@
 (ns day.7
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.core.match :refer [match]]))
 
 (def values {\1 1 \2 2 \3 3 \4 4 \5 5 \6 6 \7 7 \8 8 \9 9 \T 10 \J 11 \Q 12 \K 13 \A 14})
 
@@ -21,19 +22,32 @@
   (let [tokens (str/split s #" ")
         hand-token (first tokens)
         score-token (read-string (last tokens))]
-    {:hand (treat-hand hand-token) :score score-token }))
+    {:hand (treat-hand hand-token) :original hand-token :score score-token  }))
 
+(defn hand-level [h]
+  (match h
+    [[_ 5]] 10
+    [[_ 4] [_ 1]] 9
+    [[_ 3] [_ 2]] 8
+    [[_ 3] [_ 1] [_ 1]] 7
+    [[_ 2] [_ 2] [_ 1]]  6
+    [[_ 2] [_ 1] [_ 1] [_ 1]] 5
+    [[_ 1] [_ 1] [_ 1] [_ 1] [_ 1]] 4
+    :rest 3))
+
+(defn better-hand-tie [c1 c2]
+  (loop [a (:original c1) b (:original c2)]
+    (let [card_a (first a)
+          card_b (first b)
+          comp (compare (values card_a) (values card_b))]
+      (if-not (and (first a) (first b)) -1
+              (if-not (zero? comp) comp
+                      (recur (rest a) (rest b)))))))
 
 (defn better-hand [c1 c2]
-  (loop [a (:hand c1) b (:hand c2)]
-    (let [[num1 count1] (first a)
-          [num2 count2] (first b)
-          comp-num (compare num1 num2)
-          comp-count (compare count1 count2)]
-      (if-not (and (first a) (first b)) (compare (count b) (count a))
-              (if-not (zero? comp-count) comp-count
-                      (if-not (and (zero? comp-num) (pos? (compare (last (rest b)) (last ( rest a))))) comp-num
-                              (recur (rest a) (rest b))))))))
+  (let [comp (compare (hand-level (vec (:hand c1))) (hand-level (vec (:hand c2))))]
+    (if-not (zero? comp) comp
+            (better-hand-tie c1 c2))))
 
 (defn solve [s]
   (let [tokens (str/split-lines (slurp s))]
