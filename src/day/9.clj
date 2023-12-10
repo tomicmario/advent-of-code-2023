@@ -11,11 +11,16 @@
     (if (every? zero? (last acc)) acc
         (recur (conj acc (next-line (last acc)))))))
 
-(defn find-next [history]
-  (let [sequences (generate-sequences history)]
-    (->> (mapv last sequences)
-         (reverse)
-         (reduce +))))
+(defn find-next-p1 [sequences]
+  (->> (mapv last sequences)
+       (reverse)
+       (reduce +)))
+
+(defn find-next-p2 [sequences]
+  (->> (mapv first sequences)
+       (reverse)
+       (rest)
+       (reduce #(- %2 %1))))
 
 (defn line-to-nums [l]
   (->> (str/split l #" ")
@@ -23,8 +28,9 @@
 
 (defn solve [s]
   (let [inputs (->> (str/split-lines (slurp s))
-                    (mapv line-to-nums))]
-    (->> (mapv find-next inputs)
-         (reduce +))))
+                    (mapv line-to-nums))
+        sequences (mapv generate-sequences inputs)]
+    (println "P1:" (reduce + (mapv find-next-p1 sequences)))
+    (println "P2:" (reduce + (mapv find-next-p2 sequences)))))
 
-(solve "resources/input.txt")
+;(solve "resources/input.txt")
