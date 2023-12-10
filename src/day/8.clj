@@ -30,4 +30,4 @@
     ;(traverse input nodes "AAA" #(= % "ZZZ")) ;p1
     (p2 input nodes)))
 
-(solve "resources/input.txt")
+;(solve "resources/input.txt")
