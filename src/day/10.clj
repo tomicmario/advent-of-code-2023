@@ -22,17 +22,23 @@
 
 (defn bfs [graph start]
   (loop [queue [start :new-depth]
-         visited #{start}
+         visited #{}
          depth 0]
-    (if (seq queue)
-      (if (= :new-depth (first queue)) (recur (conj (rest queue) :new-depth) visited (inc depth))
-          (let [_ (println "todo")]
-            (recur queue visited depth)))
-      depth)))
+    ;(println queue visited depth)
+    (cond 
+      (every? #(= % :new-depth) queue) depth
+      (= :new-depth (first queue)) (recur (concat (rest queue) [:new-depth]) visited (inc depth)) 
+      (visited (first queue)) (recur (rest queue) visited depth) 
+      :else (let [current (first queue)
+                  node (get (get graph (:y current)) (:x current))
+                  neigh-not (remove #(visited %) (:neighbours node))
+                  updated-queue (concat (rest queue) neigh-not)
+                  visited-updated (conj visited {:x (:x node) :y (:y node)})]
+              (recur updated-queue visited-updated depth)))))
 
 (defn index-line [y l]
-  (vec (map-indexed (fn [x char] 
-                 {:x x :y y :neighbours (tiles char)}) l)))
+  (vec (map-indexed (fn [x char]
+                      {:x x :y y :neighbours (tiles char)}) l)))
 
 (defn nodes-to-check [x y neigh-cardinality]
   {:x (+ x (first (coordinate-diff neigh-cardinality))) 
@@ -42,9 +48,10 @@
 (defn connected 
   [{:keys [x y connect]}
    all-nodes]
-   (let [node-to-check (get (get all-nodes x) y)] 
-     (cond (nil? node-to-check) nil
-           (contains? (:neighbours node-to-check) connect) {:x x :y y}
+   (let [line (get all-nodes y)
+         char (get line x)] 
+     (cond (nil? char) nil
+           (contains? (:neighbours char) connect) {:x x :y y}
            :else nil)))
 
 (defn connect-node 
@@ -56,11 +63,21 @@
 (defn connect-nodes-line [line all-nodes]
   (mapv #(connect-node % all-nodes) line))
 
+(defn extract-start [graph [x y]]
+  (let [line (get graph y)
+        tile (get line x)]
+    tile))
+
 (defn solve [s]
-  (let [nodes (->> (str/split-lines (slurp s))
+  (let [str-input (str/split-lines (slurp s))
+        nodes (->> str-input
                    (map-indexed index-line)
                    (vec))
-        graph (mapv #(connect-nodes-line % nodes) nodes)]
-    graph))
+        graph (mapv #(connect-nodes-line % nodes) nodes)
+        start (->> (map-indexed (fn [idx s] [idx (.indexOf s "S")]) str-input)
+                         (remove #(neg? (second %)))
+                         (flatten)
+                         (extract-start graph))]
+    (bfs graph start)))
 
 (solve "resources/input.txt")
